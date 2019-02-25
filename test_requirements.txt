@@ -1,1 +1,2 @@
 pytest==4.3.0
+flask-testing==0.7.1

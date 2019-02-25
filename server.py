@@ -1,15 +1,11 @@
 from flask import Flask, request, jsonify, g
 
+from app import create_app
 from errors import BaseAPIError
-from accounts import verify_account, create_account, login_required, logout_account
-from database import init_db
-
-app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////tmp/interview-auth.db"
-init_db(app)
+from accounts import verify_account, create_account, login_required, \
+    logout_account
 
 
-@app.route("/v3/accounts/login", methods=["POST"])
 def login():
     request_data = request.json
     email = request_data.get("email")
@@ -23,14 +19,12 @@ def login():
     return jsonify({"api_key": account.api_key})
 
 
-@app.route("/v3/accounts/logout", methods=["GET"])
 @login_required
 def logout():
     logout_account(g.account)
     return ("", 204)
 
 
-@app.route("/v3/accounts", methods=["POST"])
 def new_account():
     request_data = request.json
     email = request_data.get("email")
@@ -44,8 +38,22 @@ def new_account():
     return jsonify({"api_key": account.api_key})
 
 
-@app.errorhandler(BaseAPIError)
 def handle_base_error(error):
     response = jsonify(error.to_dict())
     response.status_code = error.status_code
     return response
+
+
+def apply_routes(app):
+    app.add_url_rule("/v3/accounts/login", "login", login, methods=["POST"])
+    app.add_url_rule("/v3/accounts/logout", "logout", logout, methods=["GET"])
+    app.add_url_rule(
+        "/v3/accounts", "new_account", new_account,
+        methods=["POST"]
+    )
+    app.register_error_handler(BaseAPIError, handle_base_error)
+
+
+if __name__ == "server":
+    app = create_app("sqlite:////tmp/interview-auth.db")
+    apply_routes(app)
