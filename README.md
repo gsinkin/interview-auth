@@ -5,8 +5,12 @@ Authentication API
 1. `python3 -m venv venv-interview-auth`
 1. `source venv-interview-auth/bin/activate`
 1. `pip install --upgrade pip; pip install -r requirements.txt -r test_requirements.txt`
-1. `FLASK_APP=server.py flask run`
 
+## Run The Tests
+1. `pytest test`
+
+## Start the server
+1. `FLASK_APP=server.py flask run`
 
 ## Sample requests
 1. Create account: `curl localhost:5000/v3/accounts -X POST --header 'Content-type: application/json' --data '{"email": "gsinkin@earnup.com", "password": "Password1!"}'`
